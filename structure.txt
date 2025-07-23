@@ -1,0 +1,17 @@
+project/
+    src/
+        main.py
+        utils/
+            helpers.py
+            config.py
+        models/
+            user.py
+            data.py
+    tests/
+        test_main.py
+        test_utils.py
+    docs/
+        README.md
+        API.md
+    requirements.txt
+    setup.py

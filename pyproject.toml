@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "project-structure-creator"
+version = "0.1.0"
+authors = [
+    {name = "Wiradjuri", email = "bmuzza1992@hotmail.com"}
+]
+description = "A tool to create project structures from text descriptions"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Filesystems",
+    "Topic :: Utilities",
+]
+keywords = ["project", "structure", "generator", "directory", "file", "creation", "development", "tools"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Wiradjuri/project-structure-creator"
+"Bug Tracker" = "https://github.com/Wiradjuri/project-structure-creator/issues"
+Documentation = "https://github.com/Wiradjuri/project-structure-creator#readme"
+"Source Code" = "https://github.com/Wiradjuri/project-structure-creator"
+
+[project.scripts]
+project-structure-creator = "project_structure_creator.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["project_structure_creator*"]
+exclude = ["tests*"]

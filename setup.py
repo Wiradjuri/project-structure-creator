@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="project-structure-creator",
+    name="github-actions-project-structure-creator",
     version="0.1.0",
     author="Wiradjuri",
     author_email="bmuzza1992@hotmail.com",

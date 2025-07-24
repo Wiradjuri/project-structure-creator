@@ -13,6 +13,7 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    environment: pypi
     permissions:
       contents: read
       packages: write
@@ -44,37 +45,15 @@ jobs:
         python -m build
         ls -la dist/
     
-    - name: Publish to PyPI (Test)
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      run: |
-        if [ -n "${{ secrets.TEST_PYPI_API_TOKEN }}" ]; then
-          python -m twine upload \
-            --repository testpypi \
-            --username __token__ \
-            --password ${{ secrets.TEST_PYPI_API_TOKEN }} \
-            --verbose \
-            dist/* || echo "Test PyPI upload failed or already exists"
-        else
-          echo "TEST_PYPI_API_TOKEN not set, skipping test upload"
-        fi
+    - name: Publish to Test PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
     
     - name: Publish to PyPI (Production)
       if: github.event_name == 'release'
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-      run: |
-        if [ -n "${{ secrets.PYPI_API_TOKEN }}" ]; then
-          python -m twine upload \
-            --username __token__ \
-            --password ${{ secrets.PYPI_API_TOKEN }} \
-            --verbose \
-            dist/*
-        else
-          echo "PYPI_API_TOKEN not set, skipping production upload"
-        fi
+      uses: pypa/gh-action-pypi-publish@release/v1
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

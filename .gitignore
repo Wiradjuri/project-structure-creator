@@ -49,3 +49,5 @@ Thumbs.db
 # Project specific
 output_project/
 generated_project/
+test_output/
+test_generated_project/

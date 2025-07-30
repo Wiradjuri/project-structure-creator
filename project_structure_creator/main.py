@@ -73,7 +73,8 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  project-structure-creator structure.txt output_project
+  project-structure-creator structure.txt ~/Desktop/my_project
+  project-structure-creator structure.txt C:\\Users\\username\\Documents\\my_project
   project-structure-creator --gui
   python -m project_structure_creator --gui
         """
@@ -88,8 +89,7 @@ Examples:
     parser.add_argument(
         "output_dir", 
         nargs="?", 
-        default="output_project",
-        help="Output directory where the structure will be created (default: output_project)"
+        help="Output directory where the structure will be created (required for CLI mode)"
     )
     parser.add_argument(
         "--gui", 
@@ -119,6 +119,12 @@ Examples:
     input_file = args.input_file
     output_dir = args.output_dir
     
+    if not output_dir:
+        print("Error: Output directory is required for CLI mode.")
+        print(f"Usage: {sys.argv[0]} [input_file] [output_dir]")
+        print(f"       {sys.argv[0]} --gui")
+        sys.exit(1)
+
     if not os.path.exists(input_file):
         print(f"Error: Input file '{input_file}' not found.")
         print(f"Usage: {sys.argv[0]} [input_file] [output_dir]")

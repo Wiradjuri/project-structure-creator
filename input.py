@@ -36,7 +36,7 @@ def create_structure(base_path, structure_lines):
 
 if __name__ == "__main__":
     input_file = "structure.txt"   # User-provided file
-    output_dir = "output_project"  # Where to build the project
+    output_dir = "test_generated_project"  # Where to build the project
 
     with open(input_file, 'r', encoding='utf-8') as f:
         lines = [line.rstrip('\n') for line in f if line.strip()]

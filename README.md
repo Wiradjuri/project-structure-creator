@@ -118,7 +118,7 @@ Options:
 
 Arguments:
   INPUT_FILE    Input file containing structure (default: structure.txt)
-  OUTPUT_DIR    Output directory (default: output_project)
+  OUTPUT_DIR    Output directory (required for CLI mode)
 ```
 
 ## Examples
@@ -126,20 +126,14 @@ Arguments:
 ### Basic Usage
 
 ```bash
-project-structure-creator my_structure.txt my_project
+project-structure-creator my_structure.txt ~/Desktop/my_project
+project-structure-creator structure.txt C:\Users\username\Documents\my_project
 ```
 
 ### GUI Mode
 
 ```bash
 project-structure-creator --gui
-```
-
-### Using Default Files
-
-```bash
-project-structure-creator
-# Uses structure.txt -> output_project/
 ```
 
 ## License

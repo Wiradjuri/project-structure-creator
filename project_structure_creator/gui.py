@@ -98,7 +98,7 @@ class ProjectStructureGUI:
         path_frame.grid(row=0, column=0, sticky="ew")
         path_frame.grid_columnconfigure(0, weight=1)
         
-        self.output_path = tk.StringVar(value=str(Path.home() / "Desktop" / "generated_project"))
+        self.output_path = tk.StringVar(value=str(Path.home() / "Desktop"))
         path_entry = ttk.Entry(path_frame, textvariable=self.output_path)
         path_entry.grid(row=0, column=0, sticky="ew", padx=(0, 10))
         
@@ -167,7 +167,16 @@ class ProjectStructureGUI:
                 messagebox.showwarning("Warning", "Please enter a project structure")
                 return
                 
+            output_dir = self.output_path.get()
             paths = parse_structure(lines)
+            
+            # Get the root folder name from the first path
+            if paths:
+                first_path = paths[0][0]
+                root_folder = first_path.split(os.sep)[0] if os.sep in first_path else first_path
+                project_path = os.path.join(output_dir, root_folder) if output_dir else root_folder
+            else:
+                project_path = output_dir or "output_project"
             
             # Create preview window
             preview_window = tk.Toplevel(self.root)
@@ -178,7 +187,8 @@ class ProjectStructureGUI:
             preview_text = scrolledtext.ScrolledText(preview_window, wrap=tk.WORD)
             preview_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
             
-            preview_content = "Files and directories that will be created:\n\n"
+            preview_content = f"Project will be created at:\n📍 {project_path}\n\n"
+            preview_content += "Files and directories that will be created:\n\n"
             for path, is_dir in paths:
                 icon = "📁" if is_dir else "📄"
                 preview_content += f"{icon} {path}\n"
@@ -201,12 +211,33 @@ class ProjectStructureGUI:
             if not output_dir:
                 messagebox.showwarning("Warning", "Please specify an output directory")
                 return
-                
-            # Ask for confirmation if directory exists
-            if os.path.exists(output_dir):
+            
+            # Parse the structure to get the first folder name
+            paths = parse_structure(lines)
+            if not paths:
+                messagebox.showwarning("Warning", "No valid structure found")
+                return
+            
+            # Get the root folder name from the first path
+            first_path = paths[0][0]
+            root_folder = first_path.split(os.sep)[0] if os.sep in first_path else first_path
+            
+            # Create the full project path
+            project_path = os.path.join(output_dir, root_folder)
+            
+            # Check if the project directory already exists
+            if os.path.exists(project_path):
                 result = messagebox.askyesno(
                     "Directory Exists", 
-                    f"Directory '{output_dir}' already exists. Continue?"
+                    f"Project directory '{project_path}' already exists. Continue?"
+                )
+                if not result:
+                    return
+            else:
+                # Just confirm the creation location
+                result = messagebox.askyesno(
+                    "Confirm Creation", 
+                    f"Create project structure at:\n{project_path}?"
                 )
                 if not result:
                     return
@@ -214,23 +245,23 @@ class ProjectStructureGUI:
             self.status_var.set("Generating structure...")
             self.root.update()
             
-            # Create the structure
+            # Create the structure in the output directory
             create_structure(output_dir, lines)
             
-            self.status_var.set(f"Structure created successfully at: {output_dir}")
+            self.status_var.set(f"Structure created successfully at: {project_path}")
             
             # Ask if user wants to open the directory
             result = messagebox.askyesno(
                 "Success", 
-                f"Project structure created successfully!\n\nOpen the directory?"
+                f"Project structure created successfully!\n\nOpen the project directory?"
             )
             if result:
                 if sys.platform == "win32":
-                    os.startfile(output_dir)
+                    os.startfile(project_path)
                 elif sys.platform == "darwin":
-                    os.system(f"open '{output_dir}'")
+                    os.system(f"open '{project_path}'")
                 else:
-                    os.system(f"xdg-open '{output_dir}'")
+                    os.system(f"xdg-open '{project_path}'")
                     
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate structure: {e}")

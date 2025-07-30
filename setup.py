@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="github-actions-project-structure-creator",
+    name="project-structure-creator",
     version="0.1.0",
     author="Wiradjuri",
     author_email="bmuzza1992@hotmail.com",
@@ -31,6 +31,7 @@ setup(
     entry_points={
         "console_scripts": [
             "project-structure-creator=project_structure_creator.main:main",
+            "project-structure-creator-gui=project_structure_creator.gui:run_gui",
         ],
     },
 )

@@ -66,29 +66,78 @@ def create_structure(base_path: str, structure_lines: List[str]) -> None:
 
 def main() -> None:
     """Main entry point for the command-line interface."""
-    input_file = "structure.txt"
-    output_dir = "output_project"
+    import argparse
     
-    # Check for command line arguments
-    if len(sys.argv) > 1:
-        input_file = sys.argv[1]
-    if len(sys.argv) > 2:
-        output_dir = sys.argv[2]
+    parser = argparse.ArgumentParser(
+        description="Create project structures from text descriptions",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  project-structure-creator structure.txt output_project
+  project-structure-creator --gui
+  python -m project_structure_creator --gui
+        """
+    )
+    
+    parser.add_argument(
+        "input_file", 
+        nargs="?", 
+        default="structure.txt",
+        help="Input file containing the project structure (default: structure.txt)"
+    )
+    parser.add_argument(
+        "output_dir", 
+        nargs="?", 
+        default="output_project",
+        help="Output directory where the structure will be created (default: output_project)"
+    )
+    parser.add_argument(
+        "--gui", 
+        action="store_true",
+        help="Launch the graphical user interface"
+    )
+    parser.add_argument(
+        "--version", 
+        action="version", 
+        version="%(prog)s 0.1.0"
+    )
+    
+    args = parser.parse_args()
+    
+    # Launch GUI if requested
+    if args.gui:
+        try:
+            from .gui import run_gui
+            run_gui()
+            return
+        except ImportError as e:
+            print(f"Error: GUI dependencies not available: {e}")
+            print("GUI requires tkinter which should be included with Python.")
+            sys.exit(1)
+    
+    # CLI mode
+    input_file = args.input_file
+    output_dir = args.output_dir
     
     if not os.path.exists(input_file):
         print(f"Error: Input file '{input_file}' not found.")
-        print("Usage: project-structure-creator [input_file] [output_dir]")
+        print(f"Usage: {sys.argv[0]} [input_file] [output_dir]")
+        print(f"       {sys.argv[0]} --gui")
         sys.exit(1)
     
     try:
         with open(input_file, 'r', encoding='utf-8') as f:
             lines = [line.rstrip('\n') for line in f if line.strip()]
         
+        print(f"Reading structure from: {input_file}")
+        print(f"Creating structure at: {output_dir}")
+        print()
+        
         create_structure(output_dir, lines)
-        print(f"\nProject structure created successfully at '{output_dir}/'")
+        print(f"\n✅ Project structure created successfully at '{output_dir}/'")
         
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error: {e}")
         sys.exit(1)
 
 

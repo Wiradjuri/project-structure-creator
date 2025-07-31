@@ -1,0 +1,15 @@
+AndroidProject/
+├── build.gradle
+├── settings.gradle
+└── app/
+    ├── build.gradle
+    ├── src/main/
+    │   ├── AndroidManifest.xml
+    │   ├── java/com/example/app/MainActivity.kt
+    │   └── res/
+    │       ├── values/
+    │       │   ├── strings.xml
+    │       │   └── themes.xml
+    │       └── drawable/
+    │           └── ic_launcher.xml
+    └── proguard-rules.pro

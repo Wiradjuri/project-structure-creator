@@ -51,6 +51,7 @@ output_project/
 generated_project/
 test_output/
 test_generated_project/
+test_tree_output/
 
 # PyInstaller build files
 build/

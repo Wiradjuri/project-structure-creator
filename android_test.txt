@@ -1,0 +1,18 @@
+EmergencyCompanion/
+├── build.gradle
+├── settings.gradle
+└── app/
+    ├── build.gradle
+    ├── src/main/
+    │   ├── AndroidManifest.xml
+    │   ├── java/com/example/emergencycompanion/MainActivity.kt
+    │   └── res/
+    │       ├── drawable/ic_launcher.xml
+    │       ├── values/
+    │       │   ├── strings.xml
+    │       │   ├── themes.xml
+    │       │   └── colors.xml
+    │       └── values-night/
+    │           ├── themes.xml
+    │           └── colors.xml
+    └── proguard-rules.pro

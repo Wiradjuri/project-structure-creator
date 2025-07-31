@@ -24,21 +24,84 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install -e .  # Install the package in development mode
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    
+    - name: Test package installation
+      run: |
+        # Test that the package can be imported
+        python -c "from project_structure_creator.main import parse_structure, create_structure; print('✅ Package imports successfully')"
+        
+        # Test GUI imports (without launching)
+        python -c "from project_structure_creator.gui import ProjectStructureGUI; print('✅ GUI module imports successfully')" || echo "⚠️ GUI imports failed (expected on headless systems)"
+        
+        # Test CLI help
+        python -m project_structure_creator --help
     
     - name: Test project generation
       run: |
         # Test CLI functionality by creating a test project
         python -m project_structure_creator structure.txt test_output
-        if [ -f test_output/project/requirements.txt ]; then pip install -r test_output/project/requirements.txt; fi
+        
+        # Verify the project structure was created correctly
+        if [ -d "test_output/project" ]; then
+          echo "✅ Project directory created successfully"
+          ls -la test_output/project/
+        else
+          echo "❌ Project directory not found"
+          ls -la test_output/
+          exit 1
+        fi
+        
+        # Test tree-style structure parsing
+        python -m project_structure_creator test_tree_structure.txt test_tree_output
+        
+        # Verify the tree structure was created correctly
+        if [ -d "test_tree_output/AndroidProject" ]; then
+          echo "✅ Tree structure parsed and created successfully"
+          ls -la test_tree_output/AndroidProject/
+          if [ -f "test_tree_output/AndroidProject/app/build.gradle" ]; then
+            echo "✅ Nested tree structure is correct"
+          else
+            echo "❌ Nested tree structure failed"
+            find test_tree_output/ -name "*.gradle"
+            exit 1
+          fi
+        else
+          echo "❌ Tree structure directory not found"
+          ls -la test_tree_output/
+          exit 1
+        fi
+        
+        # Install requirements if they exist
+        if [ -f test_output/project/requirements.txt ]; then 
+          pip install -r test_output/project/requirements.txt
+        fi
     
     - name: Run tests
       run: |
-        # Run tests for the generated project
-        python -m pytest test_output/project/tests/ -v || echo "No tests found or pytest not installed"
+        # Run tests for the generated project if pytest is available
+        if [ -d "test_output/project/tests" ] && command -v pytest &> /dev/null; then
+          python -m pytest test_output/project/tests/ -v || echo "Tests completed"
+        else
+          echo "No pytest or test directory found, checking for test files..."
+          if [ -f "test_output/project/tests/test_main.py" ]; then
+            echo "✅ Test files were created successfully"
+          fi
+        fi
         
-        # Run the input.py script to test project generation (if it exists)
-        if [ -f input.py ]; then python input.py; fi || echo "input.py execution completed"
+        # Test the legacy input.py script if it exists
+        if [ -f input.py ]; then 
+          echo "Testing input.py script..."
+          python input.py
+          if [ -d "test_generated_project/project" ]; then
+            echo "✅ input.py script works correctly"
+            ls -la test_generated_project/project/
+          else
+            echo "❌ input.py script failed"
+            exit 1
+          fi
+        fi
 
   lint:
     runs-on: ubuntu-latest
@@ -57,13 +120,13 @@ jobs:
         pip install flake8 black isort
     
     - name: Run black
-      run: black --check --diff .
+      run: black --check --diff --exclude="/(build|dist|test_output|test_tree_output|test_generated_project)/" .
       continue-on-error: true
     
     - name: Run isort
-      run: isort --check-only --diff .
+      run: isort --check-only --diff --skip-glob="**/build/**" --skip-glob="**/dist/**" --skip-glob="**/test_*/**" .
       continue-on-error: true
     
     - name: Run flake8
-      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=build,dist,test_output,test_tree_output,test_generated_project
       continue-on-error: true

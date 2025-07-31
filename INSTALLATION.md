@@ -5,17 +5,20 @@
 Your Project Structure Creator now comes in multiple formats:
 
 ### 🖥️ Standalone Executables (Recommended for Users)
+
 - **ProjectStructureCreator-GUI.exe** - Double-click to run the graphical interface
 - **ProjectStructureCreator-CLI.exe** - Command-line version for automation
 - **No Python installation required!**
 
 ### 🐍 Python Packages (For Developers)
+
 - **project_structure_creator-0.1.0-py3-none-any.whl** - Installable Python package
 - **project_structure_creator-0.1.0.tar.gz** - Source distribution
 
 ## 🚀 Quick Start
 
 ### Option 1: Use the GUI Executable (Easiest)
+
 1. Navigate to the `dist/` folder
 2. Double-click `ProjectStructureCreator-GUI.exe`
 3. The application opens with an example project structure
@@ -23,6 +26,7 @@ Your Project Structure Creator now comes in multiple formats:
 5. Click "Generate Project Structure"
 
 ### Option 2: Use the CLI Executable
+
 ```bash
 # Open Command Prompt or PowerShell in the dist/ folder
 ProjectStructureCreator-CLI.exe structure.txt C:\path\to\your\project
@@ -32,6 +36,7 @@ ProjectStructureCreator-CLI.exe structure.txt C:\Users\%USERNAME%\Desktop\MyNewP
 ```
 
 ### Option 3: Install as Python Package
+
 ```bash
 pip install project_structure_creator-0.1.0-py3-none-any.whl
 
@@ -43,15 +48,18 @@ project-structure-creator structure.txt output_folder
 ## 📁 Distribution
 
 ### For End Users (No Python Knowledge)
+
 - Copy the entire `dist/` folder to any location
 - Share `ProjectStructureCreator-GUI.exe` - it runs standalone
 - Include `structure.txt` file with your desired project template
 
 ### For Developers
+
 - Share the `.whl` file for pip installation
 - Include source code for customization
 
 ### For Teams/Organizations
+
 - Place executables on shared network drives
 - Create custom structure templates in `.txt` files
 - Use CLI version in build scripts and automation
@@ -59,7 +67,9 @@ project-structure-creator structure.txt output_folder
 ## 🎯 Use Cases
 
 ### Project Templates
+
 Create standardized project structures for:
+
 - Python projects with virtual environments
 - Web development setups (React, Vue, etc.)
 - Documentation structures
@@ -67,11 +77,13 @@ Create standardized project structures for:
 - Microservice architectures
 
 ### Automation
+
 - Include CLI in build scripts
 - Generate project scaffolding in CI/CD pipelines
 - Batch create multiple similar projects
 
 ### Team Standardization
+
 - Ensure consistent project layouts across teams
 - Distribute company-specific templates
 - Version control structure definitions
@@ -79,7 +91,9 @@ Create standardized project structures for:
 ## 🔧 Customization
 
 ### Creating Custom Templates
+
 1. Create a new `.txt` file with your structure:
+
 ```
 my_api_project/
     src/
@@ -105,11 +119,13 @@ my_api_project/
    - CLI: `ProjectStructureCreator-CLI.exe your_template.txt output_path`
 
 ## 📊 File Sizes
+
 - CLI Executable: ~13-15 MB
 - GUI Executable: ~15-18 MB  
 - Python Wheel: ~15 KB
 
 ## ⚠️ Security Notes
+
 - Executables may trigger antivirus warnings (false positive from PyInstaller)
 - Add to antivirus exclusions if needed
 - Executables are self-contained and don't modify system files
@@ -117,14 +133,17 @@ my_api_project/
 ## 🐛 Troubleshooting
 
 ### "Windows protected your PC" message
+
 - Click "More info" → "Run anyway"
 - This is normal for unsigned executables
 
 ### GUI doesn't start
+
 - Try running from command prompt to see error messages
 - Ensure Windows 10/11 64-bit system
 
 ### CLI shows "not recognized" error
+
 - Use full path: `C:\path\to\ProjectStructureCreator-CLI.exe`
 - Or run from the directory containing the executable
 

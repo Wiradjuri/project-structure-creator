@@ -10,6 +10,7 @@ from typing import List, Tuple
 def parse_structure(lines: List[str]) -> List[Tuple[str, bool]]:
     """
     Parse a list of lines representing a project structure.
+    Supports both indented and tree-style formats.
     
     Args:
         lines: List of strings representing the project structure
@@ -21,21 +22,80 @@ def parse_structure(lines: List[str]) -> List[Tuple[str, bool]]:
     paths = []
 
     for line in lines:
-        stripped = line.lstrip()
-        depth = (len(line) - len(stripped)) // 4  # 4 spaces per indent
-        name = stripped.replace('├── ', '').replace('└── ', '').replace('│   ', '')
+        if not line.strip():
+            continue
+        
+        depth = 0
+        name = ""
+        
+        # Check if this is a tree-style line
+        if '├──' in line or '└──' in line:
+            # Count spaces and │ characters before the branch to determine depth
+            before_branch = line.split('├──')[0] if '├──' in line else line.split('└──')[0]
+            # Each level of depth is typically 4 spaces + possible │ characters
+            space_count = len(before_branch) - len(before_branch.lstrip(' '))
+            pipe_count = before_branch.count('│')
+            # Tree-style items start at depth 1 (they are children of a root folder)
+            depth = 1 + (space_count // 4) + pipe_count
+            
+            # Extract name after the branch
+            if '├──' in line:
+                name = line.split('├──')[1].strip()
+            else:
+                name = line.split('└──')[1].strip()
+                
+        else:
+            # Handle simple indented format or root level
+            stripped = line.lstrip()
+            if len(line) == len(stripped):
+                # Root level item
+                depth = 0
+            else:
+                depth = (len(line) - len(stripped)) // 4
+            name = stripped.strip()
+        
+        # Remove comments and descriptions (after – or #)
+        if '–' in name:
+            name = name.split('–')[0].strip()
+        if ' #' in name:
+            name = name.split(' #')[0].strip()
+        
+        if not name:
+            continue
 
-        # Determine current parent based on depth
+        # Adjust stack to current depth
         while len(stack) > depth:
             stack.pop()
 
-        current_path = os.path.join(*(stack + [name]))
-        paths.append((current_path, name.endswith('/')))
+        # Determine if it's a directory
+        is_directory = (
+            name.endswith('/') or 
+            name.endswith('\\') or
+            # If no file extension and not a known file, treat as directory
+            ('.' not in name)
+        )
         
-        if name.endswith('/'):
-            stack.append(name[:-1])
-        elif '.' not in name:  # Folder without trailing slash
-            stack.append(name)
+        # For known file patterns, force as file
+        if any(name.lower().endswith(ext) for ext in [
+            '.gradle', '.xml', '.kt', '.java', '.pro', '.md', '.txt', '.json', 
+            '.yml', '.yaml', '.properties', '.manifest', '.png', '.jpg', '.svg'
+        ]):
+            is_directory = False
+        
+        # Clean up the name
+        clean_name = name.rstrip('/\\')
+        
+        # Build the full path
+        if stack:
+            current_path = os.path.join(*stack, clean_name)
+        else:
+            current_path = clean_name
+            
+        paths.append((current_path, is_directory))
+        
+        # Add to stack if it's a directory
+        if is_directory:
+            stack.append(clean_name)
 
     return paths
 

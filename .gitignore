@@ -54,3 +54,7 @@ test_generated_project/
 
 # PyInstaller build files
 build/
+
+
+#Ignore vscode AI rules
+.github\copilot-instructions.md

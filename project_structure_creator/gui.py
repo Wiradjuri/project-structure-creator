@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 # Import the main functionality
-from .main import parse_structure, create_structure
+from .main import parse_structure, create_structure, validate_structure_input, StructureParseError
 
 
 class ProjectStructureGUI:
@@ -58,6 +58,10 @@ class ProjectStructureGUI:
         clear_btn = ttk.Button(buttons_frame, text="Clear", command=self.clear_input)
         clear_btn.grid(row=0, column=2, padx=(10, 0))
         
+        # Validate button
+        validate_btn = ttk.Button(buttons_frame, text="Validate", command=self.validate_input)
+        validate_btn.grid(row=0, column=1, padx=(10, 0))
+        
         # Text input area
         self.text_input = scrolledtext.ScrolledText(
             input_frame, 
@@ -69,23 +73,46 @@ class ProjectStructureGUI:
         input_frame.grid_rowconfigure(1, weight=1)
         
         # Add example text
-        example_text = """project/
+        example_text = """Supported formats:
+
+1. Simple indented:
+project/
     src/
         main.py
-        models/
-            data.py
-            user.py
         utils/
             config.py
-            helpers.py
     tests/
         test_main.py
-        test_utils.py
-    docs/
-        README.md
-        API.md
-    requirements.txt
-    setup.py"""
+    README.md
+
+2. Tree format:
+project/
+├── src/
+│   ├── main.py
+│   └── utils/
+│       └── config.py
+├── tests/
+│   └── test_main.py
+└── README.md
+
+3. Markdown list:
+- project/
+  - src/
+    - main.py
+    - utils/
+      - config.py
+  - tests/
+    - test_main.py
+  - README.md
+
+4. JSON format:
+{
+  "project": {
+    "src": ["main.py", "utils/config.py"],
+    "tests": ["test_main.py"],
+    "README.md": ""
+  }
+}"""
         self.text_input.insert("1.0", example_text)
         
         # Output frame
@@ -148,6 +175,21 @@ class ProjectStructureGUI:
         self.text_input.delete("1.0", tk.END)
         self.status_var.set("Input cleared")
         
+    def validate_input(self):
+        """Validate the current input"""
+        lines = self.get_structure_lines()
+        if not lines:
+            messagebox.showwarning("Warning", "Please enter a project structure to validate")
+            return
+            
+        is_valid, error_msg = validate_structure_input(lines)
+        if is_valid:
+            messagebox.showinfo("Validation", "✅ Structure format is valid!")
+            self.status_var.set("Structure validated successfully")
+        else:
+            messagebox.showerror("Validation Error", f"❌ Invalid structure format:\n\n{error_msg}")
+            self.status_var.set("Validation failed")
+        
     def browse_output_dir(self):
         """Browse for output directory"""
         directory = filedialog.askdirectory(title="Select Output Directory")
@@ -167,9 +209,26 @@ class ProjectStructureGUI:
                 messagebox.showwarning("Warning", "Please enter a project structure")
                 return
                 
+            # Validate input first
+            is_valid, error_msg = validate_structure_input(lines)
+            if not is_valid:
+                messagebox.showerror("Validation Error", f"Invalid structure format:\n\n{error_msg}")
+                return
+                
             output_dir = self.output_path.get()
-            paths = parse_structure(lines)
-            
+            try:
+                paths = parse_structure(lines)
+            except StructureParseError as e:
+                messagebox.showerror("Parse Error", f"Failed to parse structure:\n\n{e}")
+                return
+            except Exception as e:
+                messagebox.showerror("Parse Error", f"Unexpected parsing error:\n\n{e}")
+                return
+                
+            if not paths:
+                messagebox.showwarning("Warning", "No valid structure found. Please check your input format.")
+                return
+                
             # Get the root folder name from the first path
             if paths:
                 first_path = paths[0][0]
@@ -177,27 +236,49 @@ class ProjectStructureGUI:
                 project_path = os.path.join(output_dir, root_folder) if output_dir else root_folder
             else:
                 project_path = output_dir or "output_project"
-            
+                
             # Create preview window
             preview_window = tk.Toplevel(self.root)
             preview_window.title("Structure Preview")
-            preview_window.geometry("500x400")
+            preview_window.geometry("600x500")
+            preview_window.transient(self.root)
+            preview_window.grab_set()
             
             # Preview text
-            preview_text = scrolledtext.ScrolledText(preview_window, wrap=tk.WORD)
+            preview_text = scrolledtext.ScrolledText(
+                preview_window, 
+                wrap=tk.WORD,
+                font=("Consolas", 10)
+            )
             preview_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
             
-            preview_content = f"Project will be created at:\n📍 {project_path}\n\n"
-            preview_content += "Files and directories that will be created:\n\n"
-            for path, is_dir in paths:
+            preview_content = f"📍 Project will be created at:\n{project_path}\n\n"
+            preview_content += f"📊 Summary: {len([p for p in paths if p[1]])} directories, {len([p for p in paths if not p[1]])} files\n\n"
+            preview_content += "📁 Structure preview:\n\n"
+            
+            # Build tree representation
+            for i, (path, is_dir) in enumerate(paths):
                 icon = "📁" if is_dir else "📄"
-                preview_content += f"{icon} {path}\n"
+                # Add proper indentation based on path depth
+                depth = path.count(os.sep)
+                indent = "  " * depth
+                name = os.path.basename(path) if os.sep in path else path
+                preview_content += f"{indent}{icon} {name}\n"
                 
             preview_text.insert("1.0", preview_content)
             preview_text.config(state=tk.DISABLED)
             
+            # Add close button
+            close_btn = ttk.Button(
+                preview_window, 
+                text="Close", 
+                command=preview_window.destroy
+            )
+            close_btn.pack(pady=5)
+            
         except Exception as e:
             messagebox.showerror("Error", f"Failed to preview structure: {e}")
+            self.status_var.set("Preview failed")
             
     def generate_structure(self):
         """Generate the project structure"""
@@ -211,33 +292,44 @@ class ProjectStructureGUI:
             if not output_dir:
                 messagebox.showwarning("Warning", "Please specify an output directory")
                 return
-            
-            # Parse the structure to get the first folder name
-            paths = parse_structure(lines)
-            if not paths:
-                messagebox.showwarning("Warning", "No valid structure found")
+                
+            # Validate input first
+            is_valid, error_msg = validate_structure_input(lines)
+            if not is_valid:
+                messagebox.showerror("Validation Error", f"Invalid structure format:\n\n{error_msg}")
                 return
-            
+                
+            try:
+                paths = parse_structure(lines)
+            except StructureParseError as e:
+                messagebox.showerror("Parse Error", f"Failed to parse structure:\n\n{e}")
+                return
+            except Exception as e:
+                messagebox.showerror("Parse Error", f"Unexpected parsing error:\n\n{e}")
+                return
+                
+            if not paths:
+                messagebox.showwarning("Warning", "No valid structure found. Please check your input format.")
+                return
+                
             # Get the root folder name from the first path
             first_path = paths[0][0]
             root_folder = first_path.split(os.sep)[0] if os.sep in first_path else first_path
-            
-            # Create the full project path
             project_path = os.path.join(output_dir, root_folder)
             
             # Check if the project directory already exists
             if os.path.exists(project_path):
                 result = messagebox.askyesno(
                     "Directory Exists", 
-                    f"Project directory '{project_path}' already exists. Continue?"
+                    f"Project directory '{project_path}' already exists.\n\nContinue? (Existing files will be preserved)"
                 )
                 if not result:
                     return
             else:
-                # Just confirm the creation location
+                # Confirm the creation location
                 result = messagebox.askyesno(
                     "Confirm Creation", 
-                    f"Create project structure at:\n{project_path}?"
+                    f"Create project structure at:\n{project_path}\n\nThis will create {len([p for p in paths if p[1]])} directories and {len([p for p in paths if not p[1]])} files."
                 )
                 if not result:
                     return
@@ -245,27 +337,39 @@ class ProjectStructureGUI:
             self.status_var.set("Generating structure...")
             self.root.update()
             
-            # Create the structure in the output directory
-            create_structure(output_dir, lines)
-            
-            self.status_var.set(f"Structure created successfully at: {project_path}")
-            
-            # Ask if user wants to open the directory
-            result = messagebox.askyesno(
-                "Success", 
-                f"Project structure created successfully!\n\nOpen the project directory?"
-            )
-            if result:
-                if sys.platform == "win32":
-                    os.startfile(project_path)
-                elif sys.platform == "darwin":
-                    os.system(f"open '{project_path}'")
-                else:
-                    os.system(f"xdg-open '{project_path}'")
-                    
+            try:
+                create_structure(output_dir, lines)
+                self.status_var.set(f"✅ Structure created successfully at: {project_path}")
+                
+                # Ask if user wants to open the directory
+                result = messagebox.askyesno(
+                    "Success", 
+                    f"Project structure created successfully!\n\n📁 Location: {project_path}\n\nOpen the project directory?"
+                )
+                if result:
+                    try:
+                        if sys.platform == "win32":
+                            os.startfile(project_path)
+                        elif sys.platform == "darwin":
+                            os.system(f"open '{project_path}'")
+                        else:
+                            os.system(f"xdg-open '{project_path}'")
+                    except Exception as e:
+                        messagebox.showwarning("Warning", f"Could not open directory: {e}")
+                        
+            except StructureParseError as e:
+                messagebox.showerror("Structure Error", f"Failed to create structure:\n\n{e}")
+                self.status_var.set("❌ Structure creation failed")
+            except OSError as e:
+                messagebox.showerror("File System Error", f"Failed to create files/directories:\n\n{e}")
+                self.status_var.set("❌ File system error")
+            except Exception as e:
+                messagebox.showerror("Unexpected Error", f"An unexpected error occurred:\n\n{e}")
+                self.status_var.set("❌ Unexpected error")
+                
         except Exception as e:
             messagebox.showerror("Error", f"Failed to generate structure: {e}")
-            self.status_var.set("Error occurred")
+            self.status_var.set("❌ Generation failed")
 
 
 def run_gui():

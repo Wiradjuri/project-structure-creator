@@ -28,6 +28,10 @@ classifiers = [
 keywords = ["project", "structure", "generator", "directory", "file", "creation", "development", "tools"]
 dependencies = []
 
+[project.optional-dependencies]
+yaml = ["pyyaml>=6.0"]
+dev = ["pytest>=7.0", "black>=22.0", "flake8>=5.0"]
+
 [project.urls]
 Homepage = "https://github.com/Wiradjuri/project-structure-creator"
 "Bug Tracker" = "https://github.com/Wiradjuri/project-structure-creator/issues"

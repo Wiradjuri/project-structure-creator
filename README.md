@@ -4,13 +4,82 @@ A Python tool that parses text-based project structure descriptions and creates 
 
 ## Features
 
-- 📝 Parse indented text files describing project structures
+- 📝 **Multiple Format Support**: Parse various structure formats (indented, tree, JSON, YAML, Markdown lists)
 - 📁 Create directories and empty files based on the structure
-- 🌳 Support for nested folder hierarchies
-- 💻 Command-line interface for automation
-- 🖥️ Graphical user interface for easy use
-- 📋 Built-in structure preview
-- 🎯 Simple and intuitive text-based input format
+- 🌳 Support for nested folder hierarchies with unlimited depth
+- 💻 Command-line interface for automation and scripting
+- 🖥️ Graphical user interface for easy interactive use
+- 📋 Built-in structure preview and validation
+- 🎯 Intelligent file type detection
+- ⚡ Fast and efficient structure creation
+- 🛡️ Comprehensive error handling and validation
+- 🔍 Real-time input validation
+
+## Supported Input Formats
+
+### 1. Simple Indented Format
+
+```text
+project/
+    src/
+        main.py
+        utils/
+            config.py
+    tests/
+        test_main.py
+    README.md
+```
+
+### 2. Tree Format (ASCII Art)
+
+```text
+project/
+├── src/
+│   ├── main.py
+│   └── utils/
+│       └── config.py
+├── tests/
+│   └── test_main.py
+└── README.md
+```
+
+### 3. Markdown List Format
+
+```markdown
+- project/
+  - src/
+    - main.py
+    - utils/
+      - config.py
+  - tests/
+    - test_main.py
+  - README.md
+```
+
+### 4. JSON Format
+
+```json
+{
+  "project": {
+    "src": ["main.py", "utils/config.py"],
+    "tests": ["test_main.py"],
+    "README.md": ""
+  }
+}
+```
+
+### 5. YAML Format (requires pyyaml)
+
+```yaml
+project:
+  src:
+    - main.py
+    - utils:
+        - config.py
+  tests:
+    - test_main.py
+  README.md: ""
+```
 
 ## Installation
 
@@ -18,23 +87,21 @@ A Python tool that parses text-based project structure descriptions and creates 
 pip install project-structure-creator
 ```
 
+### Optional Dependencies
+
+For YAML format support:
+
+```bash
+pip install project-structure-creator[yaml]
+# or
+pip install pyyaml
+```
+
 ## Usage
 
 ### Command Line Interface
 
-1. Create a `structure.txt` file with your desired project structure:
-
-```text
-project/
-    src/
-        main.py
-        utils/
-            helpers.py
-    tests/
-        test_main.py
-    README.md
-```
-
+1. Create a structure file with your desired project structure using any supported format
 2. Run the tool:
 
 ```bash

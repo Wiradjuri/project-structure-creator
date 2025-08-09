@@ -55,7 +55,7 @@ project-structure-creator structure.txt output_folder
 
 ### For Developers
 
-- Share the `.whl` file for pip installation
+- Share the `.whl` file for pip installati on
 - Include source code for customization
 
 ### For Teams/Organizations

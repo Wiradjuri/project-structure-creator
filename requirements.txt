@@ -1,0 +1,10 @@
+# Core dependencies
+# (tkinter is included with Python standard library)
+
+# Optional dependencies for enhanced format support
+pyyaml>=6.0  # For YAML structure format support
+
+# Development dependencies (optional)
+# pytest>=7.0  # For running tests
+# black>=22.0  # For code formatting
+# flake8>=5.0  # For code linting

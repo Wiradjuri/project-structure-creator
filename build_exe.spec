@@ -19,6 +19,12 @@ gui_a = Analysis(
         'project_structure_creator',
         'project_structure_creator.main',
         'project_structure_creator.gui',
+        'json',
+        'yaml',  # Optional YAML support
+        're',
+        'os',
+        'sys',
+        'pathlib',
     ],
     hookspath=[],
     hooksconfig={},

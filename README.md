@@ -59,7 +59,6 @@ project/
 ### 4. JSON Format
 
 ```json
-{
   "project": {
     "src": ["main.py", "utils/config.py"],
     "tests": ["test_main.py"],
@@ -149,11 +148,6 @@ For development, you can run the GUI directly:
 ```bash
 python run_gui.py
 ```
-
-Or on Windows, double-click `run_gui.bat`.
-
-## Structure Format
-
 The tool uses a simple indented text format:
 
 ```text
@@ -181,10 +175,6 @@ project-structure-creator [OPTIONS] [INPUT_FILE] [OUTPUT_DIR]
 Options:
   --gui         Launch the graphical user interface
   --version     Show version information
-  --help        Show help message
-
-Arguments:
-  INPUT_FILE    Input file containing structure (default: structure.txt)
   OUTPUT_DIR    Output directory (required for CLI mode)
 ```
 

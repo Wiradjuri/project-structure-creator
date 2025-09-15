@@ -126,7 +126,7 @@ my_api_project/
 
 ## ⚠️ Security Notes
 
-- Executables may trigger antivirus warnings (false positive from PyInstaller)
+- Executables may trigger antivirus warnings (false positive from some packagers)
 - Add to antivirus exclusions if needed
 - Executables are self-contained and don't modify system files
 
@@ -134,19 +134,24 @@ my_api_project/
 
 ### "Windows protected your PC" message
 
-- Click "More info" → "Run anyway"
-- This is normal for unsigned executables
 
 ### GUI doesn't start
 
-- Try running from command prompt to see error messages
-- Ensure Windows 10/11 64-bit system
 
 ### CLI shows "not recognized" error
 
-- Use full path: `C:\path\to\ProjectStructureCreator-CLI.exe`
-- Or run from the directory containing the executable
 
----
 
 **Need help?** Check the main README.md for more detailed information and examples.
+
+
+## Packaging with Nuitka
+
+This project uses Nuitka for packaging. To build the executables, run:
+
+```bat
+build_nuitka_cli.bat
+build_nuitka_gui.bat
+```
+
+See `nuitka_requirements.txt` for dependencies.
